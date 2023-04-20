@@ -17,6 +17,13 @@ dotenv.config();
 const ENCRYPTION_ROUNDS = 10;
 
 
+const registrationSchema = Joi.object({
+  name: Joi.string().required(),
+  email: Joi.string().email().required(),
+  password: Joi.string().min(3).required(),
+});
+
+
 const signInValidationSchema = Joi.object({
   email: Joi.string().email().required(),
   password: Joi.string().min(3).required(),
@@ -26,20 +33,13 @@ const signInValidationSchema = Joi.object({
 app.post("/cadastro", async (req, res) => {
   const { name, email, password } = req.body;
 
-  if (!name || !email || !password) {
+  const validation = registrationSchema.validate(req.body, {
+    abortEarly: false,
+  });
+  if (validation.error) {
     return res
       .status(422)
-      .json({ message: "Todos os campos são obrigatórios!" });
-  }
-
-  if (!/\S+@\S+\.\S+/.test(email)) {
-    return res.status(422).json({ message: "Formato de email inválido!" });
-  }
-
-  if (password.length < 3) {
-    return res
-      .status(422)
-      .json({ message: "A senha deve ter pelo menos 3 caracteres!" });
+      .send(validation.details.map((detail) => detail.message));
   }
 
   const existingUser = await db.collection("users").findOne({ email });
@@ -63,7 +63,9 @@ app.post("/cadastro", async (req, res) => {
 app.post("/", async (req, res) => {
   const { email, password } = req.body;
 
-  const validation = signInValidationSchema.validate(req.body, { abortEarly: false });
+  const validation = signInValidationSchema.validate(req.body, {
+    abortEarly: false,
+  });
   if (validation.error)
     return res
       .status(422)
