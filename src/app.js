@@ -60,7 +60,7 @@ app.post("/cadastro", async (req, res) => {
 });
 
 
-app.post("/", async (req, res) => {
+app.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
   const validation = signInValidationSchema.validate(req.body, {
@@ -185,7 +185,52 @@ app.get("/home", async (req, res) => {
 });
 
 
-const PORT = process.env.PORT || 3000;
+app.post("/logout", async (req, res) => {
+  const authHeader = req.header("Authorization");
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ message: "Não autorizado!" });
+  }
+
+  const token = authHeader.split(" ")[1];
+
+  try {
+    const session = await db.collection("sessions").findOne({ token });
+    if (!session) {
+      return res.status(401).json({ message: "Token inválido!" });
+    }
+
+    await db.collection("sessions").deleteOne({ token });
+
+    return res.status(200).json({ message: "Usuário deslogado com sucesso!" });
+  } catch (err) {
+    return res
+      .status(500)
+      .json({ message: "Ocorreu um erro ao fazer logout!" });
+  }
+});
+
+
+app.use(["/home", "/nova-transacao"], async (req, res, next) => {
+  const authHeader = req.header("Authorization");
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.redirect("/login");
+  }
+
+  const token = authHeader.split(" ")[1];
+
+  const session = await db.collection("sessions").findOne({ token });
+
+  if (!session) {
+    return res.redirect("/login");
+  }
+
+  next();
+});
+
+
+const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
