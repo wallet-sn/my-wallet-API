@@ -3,23 +3,11 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const DATABASE_URL = process.env.DATABASE_URL;
-
-const mongoClient = new MongoClient(DATABASE_URL);
-
-let db;
-
-async function connectDb() {
-  try {
-    await mongoClient.connect();
-    console.log("Conectado com sucesso ao MongoDB!");
-    db = mongoClient.db();
-  } catch (error) {
-    console.log(`Falha ao conectar ao banco de dados. ${error}`);
-    process.exit(1);
-  }
+const mongoClient = new MongoClient(process.env.DATABASE_URL);
+try {
+  await mongoClient.connect();
+  console.log("MongoDB conectado!");
+} catch (err) {
+  console.log(err.message);
 }
-
-connectDb();
-
-export default db;
+export const db = mongoClient.db();
