@@ -1,17 +1,16 @@
 import express from "express";
-import { signUp, signIn } from "../controllers/auth.controller";
-import { validateSchema } from "../middlewares/validation.middleware.js";
-import { authValidation } from "../middlewares/ auth.middleware.js";
-import { logout } from "../controllers/authController.js";
+import { signUp, signIn, logoutUser } from "../controllers/auth.controller.js";
+import { validationMiddleware } from "../middlewares/validation.middleware.js";
+import { authMiddleware } from "../middlewares/auth.middleware.js";
 import { signInSchema } from "../schemas/signIn.schema.js";
 import { signUpSchema } from "../schemas/signUp.schema.js";
 
 const authRoutes = express.Router();
 
-authRoutes.use(authValidation);
+authRoutes.use(authMiddleware);
 
-authRoutes.post("/cadastro", validateSchema(signUpSchema), signUp);
-authRoutes.post("/login", validateSchema(signInSchema), signIn);
-authRoutes.post("/logout", logout);
+authRoutes.post("/cadastro", validationMiddleware(signUpSchema), signUp);
+authRoutes.post("/login", validationMiddleware(signInSchema), signIn);
+authRoutes.post("/logout", authMiddleware, logoutUser);
 
 export default authRoutes;

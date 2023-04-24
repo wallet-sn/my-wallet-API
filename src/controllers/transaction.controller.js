@@ -1,4 +1,4 @@
-import db from "../database/db.js";
+import { connectToDatabase } from "../database/db.js";
 
 export async function addTransaction(req, res) {
   const { tipo } = req.params;
@@ -25,7 +25,7 @@ export async function addTransaction(req, res) {
   }
 
   try {
-    const session = await db.collection("sessions").findOne({ token });
+    const session = await connectToDatabase.collection("sessions").findOne({ token });
     if (!session) return res.status(401).json({ message: "Token inválido!" });
 
     const transaction = {
@@ -35,7 +35,7 @@ export async function addTransaction(req, res) {
       userId: session.userId,
     };
 
-    await db.collection("transactions").insertOne(transaction);
+    await connectToDatabase.collection("transactions").insertOne(transaction);
 
     return res
       .status(200)

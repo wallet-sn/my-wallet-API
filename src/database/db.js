@@ -3,11 +3,17 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const mongoClient = new MongoClient(process.env.DATABASE_URL);
-try {
-  await mongoClient.connect();
-  console.log("MongoDB conectado!");
-} catch (err) {
-  console.log(err.message);
-}
-export const db = mongoClient.db();
+const connectToDatabase = async () => {
+  try {
+    const client = new MongoClient(process.env.DATABASE_URL);
+    await client.connect();
+    console.log("MongoDB connected!");
+    return client.db();
+  } catch (error) {
+    console.error("Failed to connect to database:", error);
+    process.exit(1);
+  }
+};
+
+export { connectToDatabase };
+

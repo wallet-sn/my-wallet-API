@@ -1,6 +1,6 @@
-import db from "../database/db";
+import { connectToDatabase } from "../database/db.js";
 
-export default async function authMiddleware(req, res, next) {
+export async function authMiddleware(req, res, next) {
   const authHeader = req.header("Authorization");
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -10,7 +10,9 @@ export default async function authMiddleware(req, res, next) {
   const token = authHeader.split(" ")[1];
 
   try {
-    const session = await db.collection("sessions").findOne({ token });
+    const session = await connectToDatabase
+      .collection("sessions")
+      .findOne({ token });
     if (!session) {
       return res.status(401).json({ message: "Token inválido!" });
     }

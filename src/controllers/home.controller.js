@@ -1,4 +1,4 @@
-import db from "../database/db.js";
+import {connectToDatabase} from "../database/db.js";
 
 export async function getHomePage(req, res) {
   const authHeader = req.header("Authorization");
@@ -10,18 +10,18 @@ export async function getHomePage(req, res) {
   const token = authHeader.split(" ")[1];
 
   try {
-    const session = await db.collection("sessions").findOne({ token });
+    const session = await connectToDatabase.collection("sessions").findOne({ token });
     if (!session) {
       return res.status(401).json({ message: "Token inválido!" });
     }
 
-    const user = await db.collection("users").findOne({ _id: session.userId });
+    const user = await connectToDatabase.collection("users").findOne({ _id: session.userId });
 
     if (!user) {
       return res.status(404).json({ message: "Usuário não encontrado!" });
     }
 
-    const transactions = await db
+    const transactions = await connectToDatabase
       .collection("transactions")
       .find({ userId: session.userId })
       .sort({ createdAt: -1 })
@@ -54,7 +54,7 @@ export async function checkAuth(req, res, next) {
 
   const token = authHeader.split(" ")[1];
 
-  const session = await db.collection("sessions").findOne({ token });
+  const session = await connectToDatabase.collection("sessions").findOne({ token });
 
   if (!session) {
     return res.redirect("/login");

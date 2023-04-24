@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import db from "../database/db.js";
+import {connectToDatabase} from "../database/db.js";
 import { v4 as uuid } from "uuid";
 import { signUpSchema } from "../schemas/signUp.schema.js";
 import { signInSchema } from "../schemas/signIn.schema.js";
@@ -18,7 +18,7 @@ export async function signUp(req, res) {
       .send(validation.details.map((detail) => detail.message));
   }
 
-  const existingUser = await db.collection("users").findOne({ email });
+  const existingUser = await connectToDatabase.collection("users").findOne({ email });
 
   if (existingUser) {
     return res
@@ -28,7 +28,7 @@ export async function signUp(req, res) {
 
   const hashedPassword = await bcrypt.hash(password, ENCRYPTION_ROUNDS);
 
-  await db
+  await connectToDatabase
     .collection("users")
     .insertOne({ name, email, password: hashedPassword });
 
@@ -46,7 +46,7 @@ export async function signIn(req, res) {
       .status(422)
       .send(validation.error.details.map((detail) => detail.message));
 
-  const user = await db.collection("users").findOne({ email });
+  const user = await connectToDatabase.collection("users").findOne({ email });
 
   if (!user) {
     return res.status(404).json({ message: "Usuário não encontrado!" });
@@ -60,12 +60,12 @@ export async function signIn(req, res) {
 
   const token = uuid();
 
-  await db.collection("sessions").insertOne({ token, userId: user._id });
+  await connectToDatabase.collection("sessions").insertOne({ token, userId: user._id });
 
   res.status(200).json({ token });
 }
 
-export async function logout(req, res) {
+export async function logoutUser(req, res) {
   const authHeader = req.header("Authorization");
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -75,12 +75,12 @@ export async function logout(req, res) {
   const token = authHeader.split(" ")[1];
 
   try {
-    const session = await db.collection("sessions").findOne({ token });
+    const session = await connectToDatabase.collection("sessions").findOne({ token });
     if (!session) {
       return res.status(401).json({ message: "Token inválido!" });
     }
 
-    await db.collection("sessions").deleteOne({ token });
+    await connectToDatabase.collection("sessions").deleteOne({ token });
 
     return res.status(200).json({ message: "Usuário deslogado com sucesso!" });
   } catch (err) {
