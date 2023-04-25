@@ -1,26 +1,20 @@
-import { connectToDatabase } from "../database/db.js";
+import { mongoClient } from "../database/db.js";
 
 export async function authMiddleware(req, res, next) {
-  const authHeader = req.header("Authorization");
-
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res.status(401).json({ message: "Não autorizado!" });
-  }
-
-  const token = authHeader.split(" ")[1];
+  const token = req.headers.authorization?.replace("Bearer ", "");
+  if (!token) return res.sendStatus(401);
 
   try {
-    const session = await connectToDatabase
-      .collection("sessions")
-      .findOne({ token });
-    if (!session) {
-      return res.status(401).json({ message: "Token inválido!" });
-    }
+    const session = await mongoClient.db().collection("sessions").findOne({ token });
+    const user =
+      session &&
+      (await mongoClient.db().collection("users").findOne({ _id: session.userID }));
+    if (!user) return res.sendStatus(401);
 
-    req.userId = session.userId;
+    res.locals.session = session;
+
     next();
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ message: "Ocorreu um erro!" });
+  } catch (error) {
+    res.status(500).send("Erro ao autenticar usuário: " + error.message);
   }
 }
