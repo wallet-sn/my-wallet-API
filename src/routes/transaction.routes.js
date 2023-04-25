@@ -1,27 +1,31 @@
-import express from "express";
+import { Router } from "express";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
 import { transactionSchema } from "../schemas/transaction.schema.js";
-import { validationSchema, validationTransaction } from "../middlewares/validations.middleware.js";
-import { addTransaction, listTransaction, deleteTransaction, findTransaction, updateTransaction } from "../controllers/transaction.controller.js";
+import { validationSchema } from "../middlewares/validations.middleware.js";
+import {
+  addTransaction,
+  listTransaction,
+  deleteTransaction,
+  findTransaction,
+  updateTransaction,
+} from "../controllers/transaction.controller.js";
 
-const transactionRoutes = express.Router();
+const router = Router();
 
-transactionRoutes.use(authMiddleware);
+router.use(authMiddleware);
 
-transactionRoutes
-  .route("/transactions")
-  .post(validationSchema(transactionSchema), (req, res, next) => {
-    addTransaction(req, res, next).catch(next);
-  })
-  .get(listTransaction);
+router.post(
+  "/transactions",
+  validationSchema(transactionSchema),
+  addTransaction
+);
+router.get("/transactions", listTransaction);
+router.get("/transactions/:id", findTransaction);
+router.delete("/transactions/:id", deleteTransaction);
+router.put(
+  "/transactions/:id",
+  validationSchema(transactionSchema),
+  updateTransaction
+);
 
-transactionRoutes
-  .route("/transactions/:id")
-  .all(validationTransaction)
-  .get(findTransaction)
-  .delete(deleteTransaction)
-  .put(validationSchema(transactionSchema), (req, res, next) => {
-    updateTransaction(req, res, next).catch(next);
-  });
-
-export default transactionRoutes;
+export default router;

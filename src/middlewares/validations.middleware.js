@@ -1,14 +1,16 @@
 import { mongoClient } from "../database/db.js";
 import { ObjectId } from "mongodb";
 
-export async function validationSchema(schema) {
-  return async (req, res, next) => {
-    try {
-      await schema.validateAsync(req.body, { abortEarly: false });
-      next();
-    } catch (error) {
-      res.status(422).send(error.details.map((detail) => detail.message));
+export function validationSchema(schema) {
+  return (req, res, next) => {
+    const validation = schema.validate(req.body, { abortEarly: false });
+
+    if (validation.error) {
+      const errors = validation.error.details.map((detail) => detail.message);
+      return res.status(422).send(errors);
     }
+
+    next();
   };
 }
 
@@ -41,7 +43,10 @@ export async function validationTransaction(req, res, next) {
     "transactions.id": parsedTransaction,
   };
   try {
-    const isValid = await mongoClient.db().collection("transactions").findOne(filter);
+    const isValid = await mongoClient
+      .db()
+      .collection("transactions")
+      .findOne(filter);
 
     if (!isValid) return res.status(401).send("Transação inválida!");
 
@@ -51,4 +56,3 @@ export async function validationTransaction(req, res, next) {
     res.status(500).send("Erro ao validar transação: " + error.message);
   }
 }
-

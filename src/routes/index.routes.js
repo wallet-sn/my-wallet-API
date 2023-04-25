@@ -8,5 +8,3 @@ router.use(authRoutes);
 router.use(transactionRoutes);
 
 export default router;
-
-

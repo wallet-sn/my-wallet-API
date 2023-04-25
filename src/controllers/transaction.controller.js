@@ -4,32 +4,43 @@ import { stripHtml } from "string-strip-html";
 import dayjs from "dayjs";
 
 export async function addTransaction(req, res) {
-  const {
+  const { description, value, type } = req.body;
+
+  const newTransactions = {
     description,
     value,
     type,
-    date = dayjs().format("DD/MM/YYYY"),
-  } = req.body;
-  const cleanDescription = stripHtml(description).result.trim();
-  const roundedValue = (Number(value) * 100).toFixed(0);
+    date: dayjs().format("DD/MM/YYYY"),
+  };
+
+  const { authorization } = req.headers;
+  const token = authorization?.replace("Bearer ", "");
+
+  if (!token) {
+    return res.status(401).send("Você não possui autorização!");
+  }
 
   try {
-    const session = res.locals.session;
-    const transaction = {
-      id: new ObjectId(),
-      description: cleanDescription,
-      value: roundedValue,
-      type,
-      date,
-    };
-    const filter = { userID: session.userID };
-    const update = { $push: { transactions: transaction } };
-    const options = { upsert: true };
+    const session = await db.collection("session").findOne({ token });
+    if (!session) {
+      return res.status(401).send("Você não possui autorização!");
+    }
 
-    await mongoClient.db().collection("transactions").updateOne(filter, update, options);
-    res.sendStatus(200);
+    const user = await db.collection("users").findOne({
+      _id: new ObjectId(session.userID),
+    });
+    if (!user) {
+      return res.status(401).send("Usuário não encontrado");
+    }
+
+    await db.collection("transactions").insertOne({
+      ...newTransactions,
+      userID: session.userID,
+    });
+    res.status(200).send("Transação inserida com sucesso!");
   } catch (error) {
-    res.status(500).send(error.message);
+    console.erroror(error);
+    res.sendStatus(500);
   }
 }
 
@@ -37,7 +48,8 @@ export async function listTransaction(req, res) {
   try {
     const userId = res.locals.session.userID;
     const filter = { userID: userId };
-    const transactionsData = await mongoClient.db()
+    const transactionsData = await mongoClient
+      .db()
       .collection("transactions")
       .findOne(filter);
 
@@ -50,12 +62,13 @@ export async function listTransaction(req, res) {
 
 export async function deleteTransaction(req, res) {
   try {
-    const session = res.locals.session;
-    const query = { $pull: { transactions: { id: res.locals.transactionID } } };
-
-    const result = await mongoClient.db()
+    const { id } = req.params;
+    console.log(id);
+    const result = await mongoClient
+      .db()
       .collection("transactions")
-      .updateOne({ userID: session.userID }, query, { upsert: false });
+      .deleteOne({ _id: new ObjectId(id) });
+    console.log(result);
 
     if (result.modifiedCount === 0) {
       return res.status(404).send({ error: "Transação não encontrada!" });
@@ -70,7 +83,8 @@ export async function deleteTransaction(req, res) {
 export async function findTransaction(req, res) {
   try {
     const userId = res.locals.session.userID;
-    const transactionsData = await mongoClient.db()
+    const transactionsData = await mongoClient
+      .db()
       .collection("transactions")
       .findOne({ userID: userId });
     const transaction = transactionsData?.transactions.find((t) =>
@@ -101,10 +115,14 @@ export async function updateTransaction(req, res) {
     },
   };
 
-  const result = await mongoClient.db().collection("transactions").updateOne(filter, update);
+  const result = await mongoClient
+    .db()
+    .collection("transactions")
+    .updateOne(filter, update);
 
   if (result.matchedCount === 0) return res.sendStatus(404);
 
-  const message = result.modifiedCount === 0 ? "Nenhum dado foi alterado" : "OK";
+  const message =
+    result.modifiedCount === 0 ? "Nenhum dado foi alterado" : "OK";
   res.status(200).send(message);
 }
