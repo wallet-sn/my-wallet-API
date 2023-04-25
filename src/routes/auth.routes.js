@@ -6,8 +6,7 @@ import { signUpSchema } from "../schemas/signUp.schema.js";
 
 const authRoutes = express.Router();
 
-authRoutes.post("/cadastro", validationEmail("/cadastro"), validationSchema(signUpSchema), signUp);
-authRoutes.post("/", validationEmail("/"), validationSchema(signInSchema), signIn);
+authRoutes.post("/cadastro", await validationSchema(signUpSchema), validationEmail("/cadastro"), signUp);
+authRoutes.post("/", await validationSchema(signInSchema), validationEmail("/"), signIn);
 
 export default authRoutes;
-
