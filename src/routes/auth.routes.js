@@ -1,12 +1,13 @@
-import express from "express";
-import { validationSchema } from "../middlewares/validations.middleware.js";
-import { signUp, signIn } from "../controllers/auth.controller.js";
-import { signInSchema } from "../schemas/signIn.schema.js";
-import { signUpSchema } from "../schemas/signUp.schema.js";
+import { Router } from "express";
+import { validateSchema } from "../middlewares/validateSchema.middleware.js";
+import { userSchema, loginSchema } from "../schemas/auth.schemas.js";
+import { login, signUp, logout } from "../controllers/auth.controllers.js";
+import { authValidation } from "../middlewares/authValidation.middleware.js";
 
-const authRoutes = express.Router();
+const authRouter = Router();
 
-authRoutes.post("/cadastro", validationSchema(signUpSchema), signUp);
-authRoutes.post("/", validationSchema(signInSchema), signIn);
+authRouter.post("/sign-up", validateSchema(userSchema), signUp);
+authRouter.post("/login", validateSchema(loginSchema), login);
+authRouter.post("/logout", authValidation, logout);
 
-export default authRoutes;
+export default authRouter;

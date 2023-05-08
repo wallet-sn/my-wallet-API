@@ -1,10 +1,9 @@
-import express from "express";
-import authRoutes from "./auth.routes.js";
-import transactionRoutes from "./transaction.routes.js";
+import { Router } from "express";
+import authRouter from "./auth.routes.js";
+import transactionRouter from "./transactions.routes.js";
 
-const router = express.Router();
-
-router.use(authRoutes);
-router.use(transactionRoutes);
+const router = Router();
+router.use(authRouter);
+router.use(transactionRouter);
 
 export default router;
