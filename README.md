@@ -10,6 +10,10 @@ My Wallet Project is a web application that enables users to control their perso
 
 <hr/>
 
+🔸 Demo: https://mywallet-ashy.vercel.app/
+
+<hr/>
+
 ## Features
 
 - Separate the project into two different repositories, one for the front-end and another for the back-end, and use Git for versioning. - Each implemented feature should have a corresponding commit.
