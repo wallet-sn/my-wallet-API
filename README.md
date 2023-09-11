@@ -12,7 +12,7 @@ My Wallet Project is a web application that enables users to control their perso
 
 🔸 Demo: https://mywallet-ashy.vercel.app/
 
-🔸 Organization My Wallet: https://github.com/mywallet
+🔸 Organization My Wallet: https://github.com/wallet-sn
 
 🔸 Deploy Render: https://mywallet-api-w3g6.onrender.com
 
