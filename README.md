@@ -1,6 +1,6 @@
 # My Wallet API
 
-## About
+## ℹ️ About
 
 My Wallet Project is a web application that enables users to control their personal finances. It has a front-end, back-end and database deployed in the cloud. The project was separated into two different repositories, one for the front-end and one for the back-end, using Git for versioning. The back-end was architected in controllers, routers and middlewares, while the front-end was built using ReactJS. User registration was implemented, capable of creating an account by validating fields and passwords. The application also allows users to log in, view their transactions and add new ones.
 
@@ -18,7 +18,7 @@ My Wallet Project is a web application that enables users to control their perso
 
 <hr/>
 
-## Features
+## 🛠️ Features
 
 - Separate the project into two different repositories, one for the front-end and another for the back-end, and use Git for versioning. - Each implemented feature should have a corresponding commit.
 - Implement the front-end using HTML, CSS, JS and React, always running on port 8000.
@@ -28,12 +28,12 @@ My Wallet Project is a web application that enables users to control their perso
 
 <hr/>
 
-## Motivation
+## 🎯 Motivation
 The My Wallet Project was developed to provide an easy-to-use web application that helps people manage their finances. The inspiration came from the need to have a single tool that could provide a comprehensive view of one's financial situation, including a summary of expenses, income and investments.
 
 <hr/>
 
-## Technologies
+## 📌 Technologies
 
 <p align='rigth'>
 <img style='margin: 2px;' src='https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white'/>
@@ -45,7 +45,7 @@ The My Wallet Project was developed to provide an easy-to-use web application th
 
 <hr/>
 
-## Routes
+## ⚙️ Routes
 
 #### <span style='font-weight:bold;'>POST</span> /signUp
 
@@ -113,7 +113,7 @@ The date format is: (DD/MM)
 
 <hr/>
 
-## How to run
+## 🖇 How to run
 
 To download and configure the project, follow these steps:
 
@@ -140,7 +140,7 @@ Note: This project requires MongoDB to be installed and running. If you don't ha
 
 <hr/>
 
-## Tutorials for deploying:
+## ✨ Tutorials for deploying:
             
  - [Tutorial: Deploying React projects at Vercel](https://www.notion.so/Tutorial-Deploy-de-projetos-React-na-Vercel-62fa866558034c73b31f89a0e4a3c697)
             
